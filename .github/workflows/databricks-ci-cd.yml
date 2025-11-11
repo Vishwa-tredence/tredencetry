@@ -27,13 +27,12 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-          
-      - name: Install new Databricks CLI (v0.200+)
+      - name: Install new Databricks CLI (v0.224.0)
         run: |
-          echo "Installing new Databricks CLI..."
-          curl -fsSL https://databricks-dev-tools.s3.us-west-2.amazonaws.com/install.sh | bash
-          export PATH=$PATH:/usr/local/bin
-          databricks version
+          echo "Installing new Databricks CLI (v0.224.0)..."
+          python3 -m pip install --upgrade pip
+          pip install databricks-cli==0.224.0
+          databricks --version
 
       # Step 4: Upload notebooks
       - name: Upload notebooks to Databricks
