@@ -8,10 +8,6 @@ on:
       - prod
       - qa
       - feature
-include:
-  - jobs/*.yml
-  - notebooks/*.py
-  - workflows/*.yml
 
 jobs:
   deploy-to-databricks:
@@ -24,10 +20,11 @@ jobs:
         run: pip install databricks-cli
 
       - name: Configure Databricks CLI
-        run: databricks configure --token <<EOF
-        ${{ secrets.DATABRICKS_HOST }}
-        ${{ secrets.DATABRICKS_TOKEN }}
-        EOF
+        run: |
+          databricks configure --token <<EOF
+          ${{ secrets.DATABRICKS_HOST }}
+          ${{ secrets.DATABRICKS_TOKEN }}
+          EOF
 
       - name: Deploy Notebooks / Jobs
         run: |
