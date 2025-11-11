@@ -18,24 +18,25 @@ jobs:
       DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
     steps:
-      # Step 1: Checkout code
+      # Step 1: Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up Python and Databricks CLI
+      # Step 2: Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Install Databricks CLI (v0.221.0)
+      # Step 3: Install the new Databricks CLI (modern one)
+      - name: Install Databricks CLI (v0.200+)
         run: |
-          echo "Installing latest Databricks CLI via pip..."
+          echo "Installing new Databricks CLI..."
           python3 -m pip install --upgrade pip
-          pip install "databricks-cli>=0.221.0"
+          pip install -U databricks
           databricks --version
 
-      # Step 3: Upload notebooks to workspace
+      # Step 4: Upload notebooks
       - name: Upload notebooks to Databricks
         run: |
           echo "Importing notebooks to Databricks workspace..."
@@ -44,7 +45,7 @@ jobs:
             --target /Workspace/Users/vishwa.dharshenee@tredence.com/tredencetry/notebooks \
             --overwrite
 
-      # Step 4: Create or update Databricks job
+      # Step 5: Create or update Databricks job
       - name: Create or update Databricks job
         id: deploy_job
         run: |
@@ -59,8 +60,9 @@ jobs:
           fi
           echo "JOB_ID=$JOB_ID" >> $GITHUB_ENV
 
-      # Step 5: Trigger Databricks job
+      # Step 6: Trigger the job
       - name: Trigger Databricks job run
         run: |
           echo "Triggering Databricks job run for JOB_ID=${{ env.JOB_ID }}"
           databricks jobs run-now --job-id "${{ env.JOB_ID }}"
+
