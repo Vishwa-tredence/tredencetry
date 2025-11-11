@@ -1,0 +1,15 @@
+name: silver_ingestion_job
+
+tasks:
+  - task_key: silver_ingestion
+    description: "Ingest data from Bronze layer  to silver layer and doing some transformations by running silver notebook"
+    notebook_task:
+      notebook_path: "/Workspace/Users/vishwa.dharshenee@tredence.com/tredencetry/notebooks/silver/silver_notebook"  # Path where your bronze notebook is deployed
+    retry_policy:
+      max_retries: 1
+    timeout_seconds: 3600
+    email_notifications:
+      on_start: []
+      on_success: []
+      on_failure:
+        - "vishwa.dharshenee@tredence.com"

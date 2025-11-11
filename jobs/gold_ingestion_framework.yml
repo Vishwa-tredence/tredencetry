@@ -1,0 +1,15 @@
+name: gold_aggregation_job
+
+tasks:
+  - task_key: gold_aggregation
+    description: "Ingest data from silver layer to gold layer  by running gold notebook"
+    notebook_task:
+      notebook_path: "/Workspace/Users/vishwa.dharshenee@tredence.com/tredencetry/notebooks/gold/gold_notebook"  # Path where your bronze notebook is deployed
+    retry_policy:
+      max_retries: 1
+    timeout_seconds: 3600
+    email_notifications:
+      on_start: []
+      on_success: []
+      on_failure:
+        - "vishwa.dharshenee@tredence.com"

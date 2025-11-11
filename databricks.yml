@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=bundle_config_schema.json
+bundle:
+  name: vishwa_try_workflow
+
+include:
+  - jobs/*.yml
+  - notebooks/*.py
+  - workflows/*.yml
+
+
+targets:
+  dev:
+    default: true
+    workspace:
+      host: https://adb-1089142527401100.0.azuredatabricks.net/
+      root_path: /Shared/
+    permissions:
+      - user_name: vishwa.dharshenee@tredence.com
+        level: CAN_MANAGE
+      - group_name: users
+        level: CAN_MANAGE
+
+  qa:
+    workspace:
+      host: https://adb-1089142527401100.0.azuredatabricks.net/
+      root_path: /Shared/
+    permissions:
+      - group_name: users
+        level: CAN_MANAGE

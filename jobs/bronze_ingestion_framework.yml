@@ -1,0 +1,15 @@
+name: bronze_ingestion_job
+
+tasks:
+  - task_key: bronze_ingestion
+    description: "Ingest data into Bronze layer by running bronze notebook"
+    notebook_task:
+      notebook_path: "/Workspace/Users/vishwa.dharshenee@tredence.com/tredencetry/notebooks/bronze/ingestion_notebook"  # Path where your bronze notebook is deployed
+    retry_policy:
+      max_retries: 1
+    timeout_seconds: 3600
+    email_notifications:
+      on_start: []
+      on_success: []
+      on_failure:
+        - "vishwa.dharshenee@tredence.com"
