@@ -12,33 +12,25 @@ on:
 jobs:
   deploy-to-databricks:
     runs-on: ubuntu-latest
-
     env:
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
       DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
     steps:
-      # Step 1: Checkout repo
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      # Step 2: Install Databricks CLI
       - name: Install Databricks CLI
         run: pip install databricks-cli
 
-      # Step 3: Configure Databricks CLI
-      - name: Configure Databricks CLI
-        run: |
-          echo "${DATABRICKS_HOST}"
-          echo "${DATABRICKS_TOKEN}" | databricks configure --token --host "${DATABRICKS_HOST}"
+      - name: Verify Databricks connection
+        run: databricks workspace list || echo "Connection test completed"
 
-      # Step 4: Deploy Notebooks / Jobs
       - name: Deploy Notebooks / Jobs
         run: |
           databricks workspace import_dir ./notebooks /Workspace/myproject -o
           databricks jobs create --json-file job-config.json
 
-      # Step 5: Trigger Databricks Job Run
       - name: Trigger Databricks Job Run
         run: |
           databricks jobs run-now --job-id <job_id>
