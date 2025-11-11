@@ -18,18 +18,24 @@ jobs:
       DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
     steps:
-      # Step 1: Checkout source code
+      # Step 1: Checkout code
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Install new Databricks CLI (v0.200+)
-      - name: Install Databricks CLI
+      # Step 2: Set up Python and Databricks CLI
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Databricks CLI (v0.221.0)
         run: |
-          echo "Installing latest Databricks CLI..."
-          curl -fsSL https://raw.githubusercontent.com/databricks/cli/main/install.sh | bash
+          echo "Installing latest Databricks CLI via pip..."
+          python3 -m pip install --upgrade pip
+          pip install "databricks-cli>=0.221.0"
           databricks --version
 
-      # Step 3: Upload notebooks to Databricks workspace
+      # Step 3: Upload notebooks to workspace
       - name: Upload notebooks to Databricks
         run: |
           echo "Importing notebooks to Databricks workspace..."
@@ -38,15 +44,12 @@ jobs:
             --target /Workspace/Users/vishwa.dharshenee@tredence.com/tredencetry/notebooks \
             --overwrite
 
-      # Step 4: Create or update Databricks Job
+      # Step 4: Create or update Databricks job
       - name: Create or update Databricks job
         id: deploy_job
         run: |
           echo "Creating or updating Databricks job..."
-          
-          # Try to get job ID if it already exists
           JOB_ID=$(databricks jobs list --output json | jq -r '.jobs[] | select(.settings.name=="Tredence-Job") | .job_id' || true)
-          
           if [ -n "$JOB_ID" ]; then
             echo "Job already exists with ID: $JOB_ID"
             databricks jobs reset --job-id "$JOB_ID" --json-file job-config.json
@@ -54,13 +57,10 @@ jobs:
             echo "Creating new job..."
             JOB_ID=$(databricks jobs create --json-file job-config.json | jq -r '.job_id')
           fi
-          
           echo "JOB_ID=$JOB_ID" >> $GITHUB_ENV
 
-      # Step 5: Trigger Databricks Job run
+      # Step 5: Trigger Databricks job
       - name: Trigger Databricks job run
         run: |
           echo "Triggering Databricks job run for JOB_ID=${{ env.JOB_ID }}"
           databricks jobs run-now --job-id "${{ env.JOB_ID }}"
-
-
