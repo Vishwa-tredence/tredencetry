@@ -20,24 +20,25 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Install Databricks CLI
-        run: pip install databricks-cli
+      - name: Install Databricks CLI (new)
+        run: pip install databricks-cli==0.200.0
 
       - name: Verify Databricks connection
         run: databricks workspace list || echo "Connection test completed"
 
-      - name: Deploy Notebooks / Jobs
+      - name: Deploy Notebooks
         run: |
-          databricks workspace import-dir ./notebooks /Workspace/.../notebooks --overwrite
-          databricks jobs create --json-file job-config.json
-      - name: Deploy Notebooks / Jobs
+          databricks workspace import-dir ./notebooks /Workspace/Users/vishwa.dharshenee@tredence.com/tredencetry/notebooks --overwrite
+
+      - name: Create Databricks Job
         id: create_job
         run: |
-         job_id=$(databricks jobs create --json-file job-config.json | jq -r '.job_id')
-         echo "job_id=$job_id" >> $GITHUB_OUTPUT
+          job_id=$(databricks jobs create --json job-config.json | jq -r '.job_id')
+          echo "job_id=$job_id" >> $GITHUB_OUTPUT
 
       - name: Trigger Databricks Job Run
         run: |
-         databricks jobs run-now --job-id ${{ steps.create_job.outputs.job_id }}
+          databricks jobs run-now --job-id ${{ steps.create_job.outputs.job_id }}
+
 
 
