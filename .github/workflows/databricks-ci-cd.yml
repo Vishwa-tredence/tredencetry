@@ -28,10 +28,16 @@ jobs:
 
       - name: Deploy Notebooks / Jobs
         run: |
-          databricks workspace import_dir ./notebooks /Workspace/myproject -o
+          databricks workspace import_dir /Workspace/Users/vishwa.dharshenee@tredence.com/tredencetry/notebooks-o
           databricks jobs create --json-file job-config.json
+      - name: Deploy Notebooks / Jobs
+        id: create_job
+        run: |
+         job_id=$(databricks jobs create --json-file job-config.json | jq -r '.job_id')
+         echo "job_id=$job_id" >> $GITHUB_OUTPUT
 
       - name: Trigger Databricks Job Run
         run: |
-          databricks jobs run-now --job-id <job_id>
+         databricks jobs run-now --job-id ${{ steps.create_job.outputs.job_id }}
+
 
