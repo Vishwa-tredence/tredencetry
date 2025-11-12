@@ -1,8 +1,4 @@
-name: databricks_deployment_workflow
-
-permissions:
-  id-token: write
-  contents: read
+name: Databricks CI/CD Pipeline
 
 on:
   push:
@@ -11,85 +7,34 @@ on:
       - dev
       - prod
       - qa
-    paths:
-      - 'jobs/bronze_ingestion_framework.yml'
-      - '.github/workflows/databricks-ci-cd.yml'
-      - 'databricks.yml'
-  workflow_dispatch:
+      - feature
+include:
+  - jobs/*.yml
+  - notebooks/*.py
+  - .github/workflows/*.yml
 
 jobs:
   deploy-to-databricks:
-    if: contains(fromJson('["refs/heads/main","refs/heads/dev","refs/heads/prod","refs/heads/qa"]'), github.ref)
     runs-on: ubuntu-latest
-    environment: ${{ matrix.environment }}
-
-    strategy:
-      matrix:
-        include:
-          - branch: main
-            match: refs/heads/main
-            environment: main
-            target: main
-            databricks_host: https://adb-1089142527401100.0.azuredatabricks.net/
-
-          - branch: prod
-            match: refs/heads/prod
-            environment: prod
-            target: prod
-            databricks_host: https://adb-1089142527401100.0.azuredatabricks.net/
-
-          - branch: qa
-            match: refs/heads/qa
-            environment: qa
-            target: qa
-            databricks_host: https://adb-1089142527401100.0.azuredatabricks.net/
-
     steps:
-      - name: Check branch match
-        if: github.ref == matrix.match
-        run: echo "Triggering for branch ${{ matrix.branch }}"
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-      - name: Checkout code
-        if: github.ref == matrix.match
-        uses: actions/checkout@v4
+      - name: Install Databricks CLI
+        run: pip install databricks-cli
 
-      - name: Azure login
-        if: github.ref == matrix.match
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.DATABRICKS_CLIENT_ID }}
-          tenant-id: ${{ secrets.DATABRICKS_TENANT_ID }}
-          subscription-id: ${{ secrets.DATABRICKS_SUBSCRIPTION_ID }}
-          client-secret: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+      - name: Configure Databricks CLI
+        run: databricks configure --token <<EOF
+        ${{ secrets.DATABRICKS_HOST }}
+        ${{ secrets.DATABRICKS_TOKEN }}
+        EOF
 
-      - name: Check branch match
-        if: github.ref == matrix.match
-        run: echo "Triggering for branch ${{ matrix.branch }}"
-
-      - name: Checkout code
-        if: github.ref == matrix.match
-        uses: actions/checkout@v4
-
-      - name: Azure login
-        if: github.ref == matrix.match
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.DATABRICKS_CLIENT_ID }}
-          tenant-id: ${{ secrets.DATABRICKS_TENANT_ID }}
-          subscription-id: ${{ secrets.DATABRICKS_SUBSCRIPTION_ID }}
-
-      - name: Set up Databricks CLI
-        if: github.ref == matrix.match
-        uses: databricks/setup-cli@main
-
-      - name: Databricks Bundle Validate
-        if: github.ref == matrix.match
+      - name: Deploy Notebooks / Jobs
         run: |
-          databricks bundle schema > bundle_config_schema.json
-          databricks bundle validate -t ${{ matrix.target }}
+          databricks workspace import_dir ./notebooks /Workspace/myproject -o
+          databricks jobs create --json-file job-config.json
 
-
-      - name: Deploy Bundle
-        if: github.ref == matrix.match
-        run: databricks bundle deploy -t ${{ matrix.target }} --force-lock
+      - name: Trigger Databricks Job Run
+        run: |
+          databricks jobs run-now --job-id <job_id>
 
