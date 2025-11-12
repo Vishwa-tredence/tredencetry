@@ -3,7 +3,7 @@ bundle:
 
 include:
   - jobs/*.yml
-  
+
 targets:
   dev:
     default: true
@@ -15,4 +15,11 @@ targets:
         level: CAN_MANAGE
       - group_name: users
         level: CAN_MANAGE
+    resources:
+      jobs:
+        - name: bronze_ingestion_dev
+          tasks:
+            - task_key: notebook_task
+              notebook_task:
+                notebook_path: /Shared/notebooks/bronze_ingestion
 
