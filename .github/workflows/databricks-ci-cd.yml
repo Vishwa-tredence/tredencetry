@@ -12,9 +12,9 @@ on:
       - prod
       - qa
       - feature/*
-       paths:
+    paths:
       - 'jobs/bronze_ingestion_framework.yml'
-      - '.github/workflows/databricks-ci-cd.yml.yml'
+      - '.github/workflows/databricks-ci-cd.yml'
       - 'databricks.yml'
   workflow_dispatch:
 
@@ -32,6 +32,12 @@ jobs:
             environment: main
             target: main
             databricks_host: https://adb-1089142527401100.0.azuredatabricks.net/
+
+          - branch: dev
+            match: refs/heads/dev
+            environment: dev
+            target: dev
+            databricks_host: https://<your-dev-workspace-url>
 
           - branch: prod
             match: refs/heads/prod
@@ -61,6 +67,7 @@ jobs:
           client-id: ${{ secrets.DATABRICKS_CLIENT_ID }}
           tenant-id: ${{ secrets.DATABRICKS_TENANT_ID }}
           subscription-id: ${{ secrets.DATABRICKS_SUBSCRIPTION_ID }}
+          client-secret: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
 
       - name: Set up Databricks CLI
         if: github.ref == matrix.match
