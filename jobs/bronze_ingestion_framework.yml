@@ -1,7 +1,7 @@
 name: bronze_ingestion_job
 
 tasks:
-  - task_key: bronze_ingestion
+  - task_key: bronze_ingestion_new
     description: "Ingest data into Bronze layer by running bronze notebook"
     notebook_task:
       notebook_path: "/Workspace/Users/vishwa.dharshenee@tredence.com/tredencetry/notebooks/bronze/ingestion_notebook"  # Path where your bronze notebook is deployed
