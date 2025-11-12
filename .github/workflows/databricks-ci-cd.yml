@@ -29,12 +29,6 @@ jobs:
             target: main
             databricks_host: https://adb-1089142527401100.0.azuredatabricks.net/
 
-          - branch: dev
-            match: refs/heads/dev
-            environment: dev
-            target: dev
-            databricks_host: https://adb-1089142527401100.0.azuredatabricks.net/
-
           - branch: prod
             match: refs/heads/prod
             environment: prod
