@@ -4,10 +4,7 @@ bundle:
 
 include:
   - jobs/*.yml
-  - notebooks/*.py
-  - workflows/*.yml
-
-
+  
 targets:
   dev:
     default: true
@@ -20,10 +17,3 @@ targets:
       - group_name: users
         level: CAN_MANAGE
 
-  qa:
-    workspace:
-      host: https://adb-1089142527401100.0.azuredatabricks.net/
-      root_path: /Shared/
-    permissions:
-      - group_name: users
-        level: CAN_MANAGE
