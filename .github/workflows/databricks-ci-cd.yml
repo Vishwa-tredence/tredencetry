@@ -12,6 +12,10 @@ on:
       - prod
       - qa
       - feature/*
+       paths:
+      - 'jobs/bronze_ingestion_framework.yml'
+      - '.github/workflows/databricks-ci-cd.yml.yml'
+      - 'databricks.yml'
   workflow_dispatch:
 
 jobs:
