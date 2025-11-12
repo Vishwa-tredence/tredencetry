@@ -36,7 +36,7 @@ jobs:
             match: refs/heads/dev
             environment: dev
             target: dev
-            databricks_host: https://<your-dev-workspace-url>
+            databricks_host: https://adb-1089142527401100.0.azuredatabricks.net/
 
           - branch: prod
             match: refs/heads/prod
