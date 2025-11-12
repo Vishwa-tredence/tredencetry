@@ -11,7 +11,6 @@ on:
       - dev
       - prod
       - qa
-      - feature/*
     paths:
       - 'jobs/bronze_ingestion_framework.yml'
       - '.github/workflows/databricks-ci-cd.yml'
@@ -69,28 +68,34 @@ jobs:
           subscription-id: ${{ secrets.DATABRICKS_SUBSCRIPTION_ID }}
           client-secret: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
 
+      - name: Check branch match
+        if: github.ref == matrix.match
+        run: echo "Triggering for branch ${{ matrix.branch }}"
+
+      - name: Checkout code
+        if: github.ref == matrix.match
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        if: github.ref == matrix.match
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.DATABRICKS_CLIENT_ID }}
+          tenant-id: ${{ secrets.DATABRICKS_TENANT_ID }}
+          subscription-id: ${{ secrets.DATABRICKS_SUBSCRIPTION_ID }}
+
       - name: Set up Databricks CLI
         if: github.ref == matrix.match
         uses: databricks/setup-cli@main
 
-      - name: Verify Databricks connection
-        if: github.ref == matrix.match
-        run: databricks workspace list || echo "Connection test completed"
-
-      - name: Deploy Notebooks
+      - name: Databricks Bundle Validate
         if: github.ref == matrix.match
         run: |
-          databricks workspace import-dir ./notebooks /Workspace/Users/vishwa.dharshenee@tredence.com/tredencetry/notebooks --overwrite
+          databricks bundle schema > bundle_config_schema.json
+          databricks bundle validate -t ${{ matrix.target }}
 
-      - name: Create Databricks Job
+
+      - name: Deploy Bundle
         if: github.ref == matrix.match
-        id: create_job
-        run: |
-          job_id=$(databricks jobs create --json job-config.json | jq -r '.job_id')
-          echo "job_id=$job_id" >> $GITHUB_OUTPUT
-
-      - name: Trigger Databricks Job Run
-        if: github.ref == matrix.match
-        run: databricks jobs run-now --job-id ${{ steps.create_job.outputs.job_id }}
-
+        run: databricks bundle deploy -t ${{ matrix.target }} --force-lock
 
