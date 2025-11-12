@@ -28,7 +28,7 @@ jobs:
 
       - name: Deploy Notebooks / Jobs
         run: |
-          databricks workspace import_dir /Workspace/Users/vishwa.dharshenee@tredence.com/tredencetry/notebooks-o
+          databricks workspace import-dir ./notebooks /Workspace/.../notebooks --overwrite
           databricks jobs create --json-file job-config.json
       - name: Deploy Notebooks / Jobs
         id: create_job
