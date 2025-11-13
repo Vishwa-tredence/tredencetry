@@ -1,47 +1,50 @@
+name: Databricks CI/CD
+
 on:
   push:
     branches:
       - main
       - dev
-      - prod
       - qa
+      - prod
     paths:
-      - 'jobs/bronze_ingestion_framework.yml'
-      - '.github/workflows/databricks-ci-cd.yml'
+      - 'jobs/*.yml'
       - 'databricks.yml'
+      - '.github/workflows/databricks-ci-cd.yml'
   workflow_dispatch:
 
 jobs:
   deploy-to-databricks:
-    if: contains(fromJson('["refs/heads/main","refs/heads/dev","refs/heads/prod","refs/heads/qa"]'), github.ref)
     runs-on: ubuntu-latest
-    environment: ${{ matrix.environment }}
 
     strategy:
       matrix:
         include:
           - branch: main
             match: refs/heads/main
-            environment: main
-            target: main
+            environment: dev
+            target: dev
             databricks_host: https://adb-1089142527401100.0.azuredatabricks.net/
-
+          - branch: dev
+            match: refs/heads/dev
+            environment: dev
+            target: dev
+            databricks_host: https://adb-1089142527401100.0.azuredatabricks.net/
+          - branch: qa
+            match: refs/heads/qa
+            environment: qa
+            target: qa
+            databricks_host: https://adb-1089142527401100.0.azuredatabricks.net/
           - branch: prod
             match: refs/heads/prod
             environment: prod
             target: prod
             databricks_host: https://adb-1089142527401100.0.azuredatabricks.net/
 
-          - branch: qa
-            match: refs/heads/qa
-            environment: qa
-            target: qa
-            databricks_host: https://adb-1089142527401100.0.azuredatabricks.net/
-
     steps:
       - name: Check branch match
         if: github.ref == matrix.match
-        run: echo "Triggering for branch ${{ matrix.branch }}"
+        run: echo "Deploying for branch ${{ matrix.branch }} → target ${{ matrix.target }}"
 
       - name: Checkout code
         if: github.ref == matrix.match
@@ -56,31 +59,19 @@ jobs:
           subscription-id: ${{ secrets.DATABRICKS_SUBSCRIPTION_ID }}
           client-secret: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
 
-      - name: Check branch match
+      - name: Set Databricks host env
         if: github.ref == matrix.match
-        run: echo "Triggering for branch ${{ matrix.branch }}"
-
-      - name: Checkout code
-        if: github.ref == matrix.match
-        uses: actions/checkout@v4
-
-      - name: Azure login
-        if: github.ref == matrix.match
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.DATABRICKS_CLIENT_ID }}
-          tenant-id: ${{ secrets.DATABRICKS_TENANT_ID }}
-          subscription-id: ${{ secrets.DATABRICKS_SUBSCRIPTION_ID }}
+        run: |
+          echo "DATABRICKS_HOST=${{ matrix.databricks_host }}" >> $GITHUB_ENV
 
       - name: Set up Databricks CLI
         if: github.ref == matrix.match
         uses: databricks/setup-cli@main
 
-      - name: Databricks Bundle Validate
+      - name: Validate bundle
         if: github.ref == matrix.match
-        run: |
-          databricks bundle schema > bundle_config_schema.json
-          databricks bundle validate -t ${{ matrix.target }}
-      - name: Deploy Bundle
+        run: databricks bundle validate -t ${{ matrix.target }}
+
+      - name: Deploy bundle
         if: github.ref == matrix.match
         run: databricks bundle deploy -t ${{ matrix.target }} --force-lock
