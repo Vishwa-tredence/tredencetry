@@ -3,7 +3,6 @@ name: Databricks CI/CD
 on:
   push:
     branches:
-      - main
       - dev
       - qa
       - prod
@@ -20,21 +19,18 @@ jobs:
     strategy:
       matrix:
         include:
-          - branch: main
-            match: refs/heads/main
-            environment: dev
-            target: dev
-            databricks_host: https://adb-1089142527401100.0.azuredatabricks.net/
           - branch: dev
             match: refs/heads/dev
             environment: dev
             target: dev
             databricks_host: https://adb-1089142527401100.0.azuredatabricks.net/
+
           - branch: qa
             match: refs/heads/qa
             environment: qa
             target: qa
             databricks_host: https://adb-1089142527401100.0.azuredatabricks.net/
+
           - branch: prod
             match: refs/heads/prod
             environment: prod
@@ -61,8 +57,7 @@ jobs:
 
       - name: Set Databricks host env
         if: github.ref == matrix.match
-        run: |
-          echo "DATABRICKS_HOST=${{ matrix.databricks_host }}" >> $GITHUB_ENV
+        run: echo "DATABRICKS_HOST=${{ matrix.databricks_host }}" >> $GITHUB_ENV
 
       - name: Set up Databricks CLI
         if: github.ref == matrix.match
@@ -75,3 +70,4 @@ jobs:
       - name: Deploy bundle
         if: github.ref == matrix.match
         run: databricks bundle deploy -t ${{ matrix.target }} --force-lock
+
