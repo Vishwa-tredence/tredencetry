@@ -36,7 +36,7 @@ resources:
             node_type_id: "serverless"
             num_workers: 1
             data_security_mode: SINGLE_USER
-
+            
       queue:
         enabled: true
       performance_target: PERFORMANCE_OPTIMIZED
