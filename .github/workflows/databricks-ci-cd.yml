@@ -58,7 +58,4 @@ jobs:
         if: github.ref == matrix.match
         run: databricks bundle validate -t ${{ matrix.target }}
 
-      - name: Deploy bundle
-        if: github.ref == matrix.match
-        run: databricks bundle deploy -t ${{ matrix.target }} --force-lock
 
