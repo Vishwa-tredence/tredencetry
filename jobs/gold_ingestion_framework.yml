@@ -1,0 +1,14 @@
+resources:
+  jobs:
+    - name: gold_aggregation_job
+      tasks:
+        - task_key: gold_aggregation
+          description: "Aggregate Silver → Gold"
+          notebook_task:
+            notebook_path: "/Workspace/Users/vishwa.dharshenee@tredence.com/tredencetry/notebooks/gold/gold_notebook"
+          retry_policy:
+            max_retries: 1
+          timeout_seconds: 3600
+          email_notifications:
+            on_failure:
+              - "vishwa.dharshenee@tredence.com"

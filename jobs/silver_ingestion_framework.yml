@@ -1,0 +1,14 @@
+resources:
+  jobs:
+    - name: silver_ingestion_job
+      tasks:
+        - task_key: silver_ingestion
+          description: "Transform Bronze → Silver"
+          notebook_task:
+            notebook_path: "/Workspace/Users/vishwa.dharshenee@tredence.com/tredencetry/notebooks/silver/silver_notebook"
+          retry_policy:
+            max_retries: 1
+          timeout_seconds: 3600
+          email_notifications:
+            on_failure:
+              - "vishwa.dharshenee@tredence.com"

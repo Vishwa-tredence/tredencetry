@@ -1,0 +1,38 @@
+bundle:
+  name: tredencetry_bundle
+
+include:
+  - jobs/*.yml
+
+targets:
+  dev:
+    default: true
+    workspace:
+      host: https://adb-1089142527401100.0.azuredatabricks.net/
+      root_path: /Shared/tredencetry/dev
+    permissions:
+      - user_name: vishwa.dharshenee@tredence.com
+        level: CAN_MANAGE
+      - group_name: users
+        level: CAN_MANAGE
+
+  qa:
+    workspace:
+      host: https://adb-1089142527401100.0.azuredatabricks.net/
+      root_path: /Shared/tredencetry/qa
+    permissions:
+      - user_name: vishwa.dharshenee@tredence.com
+        level: CAN_MANAGE
+      - group_name: users
+        level: CAN_MANAGE
+
+  prod:
+    workspace:
+      host: https://adb-1089142527401100.0.azuredatabricks.net/
+      root_path: /Shared/tredencetry/prod
+    permissions:
+      - user_name: vishwa.dharshenee@tredence.com
+        level: CAN_MANAGE
+      - group_name: users
+        level: CAN_MANAGE
+
